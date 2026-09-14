@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Grok Imagine Quota Viewer",
+  "version": "1.0.0",
+  "description": "Firefox sidebar for Grok Imagine quota info",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "grok-quota-viewer@shizhang",
+      "strict_min_version": "109.0"
+    }
+  },
+  "permissions": [],
+  "host_permissions": [
+    "https://grok.com/*"
+  ],
+  "sidebar_action": {
+    "default_title": "Grok Imagine Quota",
+    "default_panel": "sidebar.html",
+    "open_at_install": true
+  },
+  "action": {
+    "default_title": "Open Grok Quota Sidebar"
+  }
+}
