@@ -10,59 +10,63 @@ Ported from the Chrome extension [mashiourcse/grok_quota_check_extension](https:
 
 * Native Firefox Sidebar
 * Auto refresh every 30 seconds
-* Shows:
-  * Speed Image
-  * Quality Image
-  * Edit Image
-  * 480p Video
-  * 720p Video
-* Uses your existing logged-in Grok session
+* Shows: Speed Image, Quality Image, Edit Image, 480p Video, 720p Video
+* Uses your existing logged-in Grok session (via content script on grok.com)
+
+---
+
+## Why a content script?
+
+Direct `fetch` from the sidebar uses `Origin: moz-extension://…`, which Grok often answers with **HTTP 403**.
+
+The content script runs on `https://grok.com/*`, so the request is same-site (cookies + Origin). The sidebar only asks that tab for the JSON.
 
 ---
 
 ## Installation (Temporary / Developer)
 
-1. Clone or download this repository (this branch).
-2. Open Firefox and go to `about:debugging#/runtime/this-firefox`.
-3. Click **Load Temporary Add-on…**.
-4. Select the `manifest.json` file in this folder.
-5. The sidebar should open automatically (or open via **View → Sidebar → Grok Imagine Quota**).
-
-For a permanent install you need to sign the extension via [addons.mozilla.org](https://addons.mozilla.org) or use `web-ext`.
+1. Open this folder (or clone the `firefox-quota-viewer` branch).
+2. Firefox → `about:debugging#/runtime/this-firefox`
+3. **Load Temporary Add-on…** → select `manifest.json`
+4. Open (or refresh) a tab on https://grok.com while logged in
+5. Open the sidebar: **View → Sidebar → Grok Imagine Quota** (or it may open on install)
+6. Click **Refresh** if needed
 
 ---
 
 ## Requirements
 
-You must already be logged into Grok at [https://grok.com](https://grok.com).
-
-The extension uses your browser session cookies to fetch quota information.
+* Logged into https://grok.com
+* At least one open tab on grok.com (content script must be injected)
 
 ---
 
 ## How It Works
 
-The extension calls this internal Grok API:
+1. Sidebar asks any open `grok.com` tab for quota data
+2. Content script POSTs to:
 
 ```
 https://grok.com/rest/media/imagine/quota_info
 ```
 
-(POST with empty JSON body, credentials included) and displays remaining quotas, reset windows, and next available times.
+3. Response is rendered as cards (remaining quota, window, next available)
+
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
+|--------|-----|
+| **No grok.com tab open** | Open https://grok.com and stay logged in |
+| **Content script not ready** | Refresh the grok.com tab once, then Refresh in sidebar |
+| **HTTP 401 / 403** | Re-login on grok.com, refresh that tab |
+| Empty cards | API field names may have changed — check Network tab on grok.com |
 
 ---
 
 ## Notes
 
-* This uses an undocumented/private Grok API.
-* Grok may change the API anytime.
-* If the sidebar stops working, inspect the browser console for updated response fields.
-
----
-
-## Differences from Chrome version
-
-* Uses Firefox `sidebar_action` instead of Chrome `sidePanel`.
-* No background service worker needed for panel behavior.
-* Layout tuned for typical sidebar width (single column).
-* Manifest includes `browser_specific_settings.gecko` for Firefox.
+* Undocumented/private Grok API — may change without notice
+* Temporary add-ons are removed when Firefox restarts
+* For permanent install, sign via AMO or use `web-ext`
